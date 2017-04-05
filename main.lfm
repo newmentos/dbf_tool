@@ -1,0 +1,68 @@
+object frmMain: TfrmMain
+  Left = 342
+  Height = 430
+  Top = 159
+  Width = 643
+  Caption = 'Главное окно'
+  ClientHeight = 430
+  ClientWidth = 643
+  OnCreate = FormCreate
+  Position = poDesktopCenter
+  LCLVersion = '1.6.4.0'
+  object btnOpen: TButton
+    Left = 8
+    Height = 25
+    Top = 8
+    Width = 75
+    Caption = 'Открыть'
+    OnClick = btnOpenClick
+    TabOrder = 0
+  end
+  object btnExit: TButton
+    Left = 560
+    Height = 25
+    Top = 8
+    Width = 75
+    Caption = 'Выход'
+    OnClick = btnExitClick
+    TabOrder = 1
+  end
+  object btnSave: TButton
+    Left = 88
+    Height = 25
+    Top = 8
+    Width = 75
+    Caption = 'Сохранить'
+    TabOrder = 2
+  end
+  object memoLog: TMemo
+    Left = 8
+    Height = 232
+    Top = 192
+    Width = 627
+    Lines.Strings = (
+      'memoLog'
+    )
+    TabOrder = 3
+  end
+  object dbgrid1: TDBGrid
+    Left = 8
+    Height = 144
+    Top = 40
+    Width = 627
+    Color = clWindow
+    Columns = <>
+    TabOrder = 4
+  end
+  object OpenDialog1: TOpenDialog
+    left = 39
+    top = 80
+  end
+  object dbf1: TDbf
+    IndexDefs = <>
+    TableLevel = 4
+    FilterOptions = []
+    left = 112
+    top = 80
+  end
+end
