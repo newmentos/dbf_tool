@@ -52,6 +52,7 @@ object frmMain: TfrmMain
     Width = 627
     Color = clWindow
     Columns = <>
+    DataSource = DataSource1
     TabOrder = 4
   end
   object OpenDialog1: TOpenDialog
@@ -63,6 +64,11 @@ object frmMain: TfrmMain
     TableLevel = 4
     FilterOptions = []
     left = 112
+    top = 80
+  end
+  object DataSource1: TDataSource
+    DataSet = dbf1
+    left = 184
     top = 80
   end
 end
