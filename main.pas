@@ -5,7 +5,7 @@ unit main;
 interface
 
 uses
-  Classes, SysUtils, dbf, FileUtil, Forms, Controls, Graphics, Dialogs,
+  Classes, SysUtils, dbf, db, FileUtil, Forms, Controls, Graphics, Dialogs,
   StdCtrls, DBGrids;
 
 type
@@ -16,6 +16,7 @@ type
     btnOpen: TButton;
     btnExit: TButton;
     btnSave: TButton;
+    DataSource1: TDataSource;
     dbf1: TDbf;
     dbgrid1: TDBGrid;
     memoLog: TMemo;
@@ -52,18 +53,22 @@ begin
   if OpenDialog1.Execute then
   begin
     filename := OpenDialog1.Filename;
-  end;
-  memoLog.Append(filename);
-  dbf1.FilePathFull := ExtractFilePath(filename);
-  dbf1.TableName := ExtractFileName(filename);
-  dbf1.Active := True;
-  dbf1.Open;
-  for i := 0 to dbf1.FieldCount - 1 do
+    memoLog.Append(filename);
+    dbf1.FilePathFull := ExtractFilePath(filename);
+    dbf1.TableName := ExtractFileName(filename);
+    dbf1.Active := True;
+    dbf1.Open;
+    for i := 0 to dbf1.FieldCount - 1 do
+    begin
+      // dbf1.Fields[i].DataType = ftString ftFloat ftInteger
+      memoLog.Append(dbf1.Fields[i].FieldName + ' ' + IntToStr(dbf1.Fields[i].DataSize));
+    end;
+    dbf1.Close;
+  end
+  else
   begin
-    // dbf1.Fields[i].DataType = ftString ftFloat ftInteger
-    memoLog.Append(dbf1.Fields[i].FieldName+' '+IntToStr(dbf1.Fields[i].DataSize));
+    filename := '';
   end;
-  dbf1.Close;
 end;
 
 procedure TfrmMain.FormCreate(Sender: TObject);
