@@ -1,11 +1,11 @@
 object frmMain: TfrmMain
-  Left = 406
-  Height = 430
-  Top = 175
-  Width = 643
+  Left = 341
+  Height = 600
+  Top = 122
+  Width = 800
   Caption = 'Главное окно'
-  ClientHeight = 430
-  ClientWidth = 643
+  ClientHeight = 600
+  ClientWidth = 800
   OnCreate = FormCreate
   Position = poDesktopCenter
   LCLVersion = '1.6.4.0'
@@ -19,7 +19,7 @@ object frmMain: TfrmMain
     TabOrder = 0
   end
   object btnExit: TButton
-    Left = 560
+    Left = 720
     Height = 25
     Top = 8
     Width = 75
@@ -37,9 +37,9 @@ object frmMain: TfrmMain
   end
   object memoLog: TMemo
     Left = 8
-    Height = 232
-    Top = 192
-    Width = 627
+    Height = 176
+    Top = 416
+    Width = 787
     Lines.Strings = (
       'memoLog'
     )
@@ -47,9 +47,9 @@ object frmMain: TfrmMain
   end
   object dbgrid1: TDBGrid
     Left = 8
-    Height = 144
+    Height = 368
     Top = 40
-    Width = 627
+    Width = 787
     Color = clWindow
     Columns = <>
     DataSource = DataSource1
