@@ -61,10 +61,9 @@ object frmMain: TfrmMain
     top = 80
   end
   object dbf1: TDbf
-    FilePath = '/home/newmentos/lazarus_projects/dbf_tool/'
     IndexDefs = <>
-    TableName = 'DOC.DBF'
     TableLevel = 4
+    OnTranslate = dbf1Translate
     FilterOptions = []
     left = 112
     top = 80
