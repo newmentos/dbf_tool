@@ -1,13 +1,14 @@
 object frmMain: TfrmMain
-  Left = 341
+  Left = 419
   Height = 600
-  Top = 122
+  Top = 149
   Width = 800
   Caption = 'Главное окно'
   ClientHeight = 600
   ClientWidth = 800
   OnCreate = FormCreate
-  Position = poDesktopCenter
+  OnDestroy = FormDestroy
+  Position = poScreenCenter
   LCLVersion = '1.6.4.0'
   object btnOpen: TButton
     Left = 8
@@ -52,7 +53,7 @@ object frmMain: TfrmMain
     Width = 787
     Color = clWindow
     Columns = <>
-    DataSource = DataSource1
+    DataSource = ds1
     TabOrder = 4
   end
   object OpenDialog1: TOpenDialog
@@ -60,13 +61,15 @@ object frmMain: TfrmMain
     top = 80
   end
   object dbf1: TDbf
+    FilePath = '/home/newmentos/lazarus_projects/dbf_tool/'
     IndexDefs = <>
+    TableName = 'DOC.DBF'
     TableLevel = 4
     FilterOptions = []
     left = 112
     top = 80
   end
-  object DataSource1: TDataSource
+  object ds1: TDataSource
     DataSet = dbf1
     left = 184
     top = 80
