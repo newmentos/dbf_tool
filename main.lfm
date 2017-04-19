@@ -34,6 +34,7 @@ object frmMain: TfrmMain
     Top = 8
     Width = 75
     Caption = 'Сохранить'
+    OnClick = btnSaveClick
     TabOrder = 2
   end
   object memoLog: TMemo
@@ -72,5 +73,9 @@ object frmMain: TfrmMain
     DataSet = dbf1
     left = 184
     top = 80
+  end
+  object SaveDialog1: TSaveDialog
+    left = 39
+    top = 152
   end
 end

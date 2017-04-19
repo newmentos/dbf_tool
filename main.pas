@@ -21,8 +21,10 @@ type
     dbgrid1: TDBGrid;
     memoLog: TMemo;
     OpenDialog1: TOpenDialog;
+    SaveDialog1: TSaveDialog;
     procedure btnExitClick(Sender: TObject);
     procedure btnOpenClick(Sender: TObject);
+    procedure btnSaveClick(Sender: TObject);
     function dbf1Translate(Dbf: TDbf; Src, Dest: PChar; ToOem: boolean): integer;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -83,6 +85,15 @@ begin
   end;
 end;
 
+procedure TfrmMain.btnSaveClick(Sender: TObject);
+begin
+  SaveDialog1.InitialDir:=ExtractFilePath(OpenDialog1.FileName);
+  if SaveDialog1.Execute then
+  begin
+
+  end;
+end;
+
 function TfrmMain.dbf1Translate(Dbf: TDbf; Src, Dest: PChar; ToOem: boolean): integer;
 var
   S: string;
@@ -96,9 +107,11 @@ begin
 end;
 
 procedure TfrmMain.FormCreate(Sender: TObject);
+
 begin
   curDir := ExtractFilePath(Application.ExeName);
   OpenDialog1.Filter := 'DBase Table|*.dbf*;.DBF';
+  SaveDialog1.Filter:='SQLite database|*.db*;.sqlite;*.sqlite3';
   memoLog.Clear;
   //  dbf1.Create(nil);
 
