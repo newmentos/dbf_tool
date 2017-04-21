@@ -4,3 +4,8 @@ dbtool
 dbtool.exe
 dbtool.res
 dbtool.lps
+*.DBF
+*.dbf
+*.db
+*.sqlite
+*.sqlite3

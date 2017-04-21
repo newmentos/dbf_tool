@@ -5,8 +5,8 @@ unit main;
 interface
 
 uses
-  Classes, SysUtils, dbf, DB, FileUtil, Forms, Controls, Graphics, Dialogs,
-  StdCtrls, DBGrids, lconvencoding;
+  Classes, SysUtils, dbf, DB, Sqlite3DS, FileUtil, Forms, Controls, Graphics,
+  Dialogs, StdCtrls, DBGrids, lconvencoding, LazFileUtils;
 
 type
 
@@ -17,15 +17,16 @@ type
     btnExit: TButton;
     btnSave: TButton;
     ds1: TDataSource;
-    dbf1: TDbf;
+    dsDbf: TDbf;
     dbgrid1: TDBGrid;
     memoLog: TMemo;
     OpenDialog1: TOpenDialog;
     SaveDialog1: TSaveDialog;
+    dsSqlite3: TSqlite3Dataset;
     procedure btnExitClick(Sender: TObject);
     procedure btnOpenClick(Sender: TObject);
     procedure btnSaveClick(Sender: TObject);
-    function dbf1Translate(Dbf: TDbf; Src, Dest: PChar; ToOem: boolean): integer;
+    function dsDbfTranslate(Dbf: TDbf; Src, Dest: PChar; ToOem: boolean): integer;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
   private
@@ -58,22 +59,21 @@ begin
   begin
     ds1.DataSet.Active := False;
     ds1.DataSet.Close;
-    dbf1.Close;
+    dsDbf.Close;
     filename := OpenDialog1.Filename;
     memoLog.Append(filename);
-    dbf1.FilePathFull := ExtractFilePath(filename);
-    dbf1.TableName := ExtractFileName(filename);
-    dbf1.Active := True;
-    dbf1.Open;
-    for i := 0 to dbf1.FieldCount - 1 do
+    dsDbf.FilePathFull := ExtractFilePath(filename);
+    dsDbf.TableName := ExtractFileName(filename);
+    dsDbf.Active := True;
+    dsDbf.Open;
+    for i := 0 to dsDbf.FieldCount - 1 do
     begin
-      // dbf1.Fields[i].DataType = ftString ftFloat ftInteger
-      memoLog.Append('Имя поля:' + dbf1.Fields[i].FieldName +
-        ' размер поля:' + IntToStr(dbf1.Fields[i].DataSize));
-      //      DBGrid1.Columns[i].Title.Caption := 'Name';
-      if dbf1.Fields[i].DataType = ftString then
-         TStringField(dbf1.Fields[i]).Transliterate := True;
-      DBGrid1.Columns[i].FieldName := dbf1.Fields[i].FieldName;
+      memoLog.Append('Имя поля:' + dsDbf.Fields[i].FieldName +
+        ' размер поля:' + IntToStr(dsDbf.Fields[i].DataSize));
+      if dsDbf.Fields[i].DataType = ftString then
+        TStringField(dsDbf.Fields[i]).Transliterate := True;
+      DBGrid1.Columns[i].FieldName := dsDbf.Fields[i].FieldName;
+      DBGrid1.Columns[i].Title.Caption := dsDbf.Fields[i].FieldName;
     end;
     ds1.DataSet.Active := True;
     ds1.DataSet.Open;
@@ -86,15 +86,51 @@ begin
 end;
 
 procedure TfrmMain.btnSaveClick(Sender: TObject);
+var
+  sFile, sTableName, sqlCreateTable: string;
+  i: integer;
 begin
-  SaveDialog1.InitialDir:=ExtractFilePath(OpenDialog1.FileName);
+  SaveDialog1.InitialDir := ExtractFileDir(OpenDialog1.FileName);
   if SaveDialog1.Execute then
   begin
+    sFile := SaveDialog1.FileName;
+    sTableName := LazFileUtils.ExtractFileNameOnly(filename);
+    memoLog.Append(sFile);
+    memoLog.Append(sTableName);
+    dsSqlite3.Close;
+    dsSqlite3.FileName := sFile;
+    dsSqlite3.TableName := sTableName;
+    if dsSqlite3.TableExists(sTableName) then
+    begin
+      if MessageDlg('Внимание!', 'Таблица уже существует! Заменить?',
+        mtConfirmation, [mbYes, mbNo], 0) = mrYes then
+      begin
+        dsSqlite3.ExecuteDirect('DROP TABLE "' + sTableName + '";');
+      end
+      else
+        Exit;
+    end;
+    sqlCreateTable := 'CREATE TABLE "' + sTableName + '" (';
+    for i := 0 to dsDbf.FieldCount - 1 do
+    begin
+      sqlCreateTable += '"' + dsDbf.Fields[i].FieldName + '" ';
+      case dsDbf.Fields[i].DataType of
+        ftString: sqlCreateTable += ' text(' + IntToStr(dsDbf.Fields[i].DataSize) + '),';
+        ftInteger: sqlCreateTable += ' integer(' + IntToStr(dsDbf.Fields[i].DataSize) + '),';
+        //        ftBoolean: sqlCreateTable += ' Boolean,';
+        //        ftMemo: sqlCreateTable += ' blob,';
+        ftFloat: sqlCreateTable += ' real,';
+      end;
+    end;
+    Delete(sqlCreateTable, length(sqlCreateTable), 1);
+    sqlCreateTable += ');';
+    memoLog.Append(sqlCreateTable);
+    dsSqlite3.ExecuteDirect(sqlCreateTable);
 
   end;
 end;
 
-function TfrmMain.dbf1Translate(Dbf: TDbf; Src, Dest: PChar; ToOem: boolean): integer;
+function TfrmMain.dsDbfTranslate(Dbf: TDbf; Src, Dest: PChar; ToOem: boolean): integer;
 var
   S: string;
 begin
@@ -110,16 +146,21 @@ procedure TfrmMain.FormCreate(Sender: TObject);
 
 begin
   curDir := ExtractFilePath(Application.ExeName);
-  OpenDialog1.Filter := 'DBase Table|*.dbf*;.DBF';
-  SaveDialog1.Filter:='SQLite database|*.db*;.sqlite;*.sqlite3';
+  OpenDialog1.Title := 'Выберите файл dbf для чтения';
+  OpenDialog1.DefaultExt := '*.dbf;*.DBF';
+  OpenDialog1.Filter := 'DBase Table|*.dbf;*.DBF';
+  SaveDialog1.Title := 'Выберите файл SQLite для сохранения данных';
+  SaveDialog1.DefaultExt := '*.db;*.sqlite;*.sqlite3';
+  SaveDialog1.Filter := 'SQLite database|*.db;*.sqlite;*.sqlite3';
+
   memoLog.Clear;
-  //  dbf1.Create(nil);
+  //  dsDbf.Create(nil);
 
 end;
 
 procedure TfrmMain.FormDestroy(Sender: TObject);
 begin
-  dbf1.Free;
+  dsDbf.Free;
 end;
 
 end.

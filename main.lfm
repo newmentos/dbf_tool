@@ -61,21 +61,25 @@ object frmMain: TfrmMain
     left = 39
     top = 80
   end
-  object dbf1: TDbf
+  object dsDbf: TDbf
     IndexDefs = <>
     TableLevel = 4
-    OnTranslate = dbf1Translate
+    OnTranslate = dsDbfTranslate
     FilterOptions = []
     left = 112
     top = 80
   end
   object ds1: TDataSource
-    DataSet = dbf1
+    DataSet = dsDbf
     left = 184
     top = 80
   end
   object SaveDialog1: TSaveDialog
     left = 39
+    top = 152
+  end
+  object dsSqlite3: TSqlite3Dataset
+    left = 112
     top = 152
   end
 end
