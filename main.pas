@@ -87,8 +87,8 @@ end;
 
 procedure TfrmMain.btnSaveClick(Sender: TObject);
 var
-  sFile, sTableName, sqlCreateTable: string;
-  i: integer;
+  sFile, sTableName, sqlCreateTable, sqlInsert, sqlTmpInsert: string;
+  i, j: integer;
 begin
   SaveDialog1.InitialDir := ExtractFileDir(OpenDialog1.FileName);
   if SaveDialog1.Execute then
@@ -111,22 +111,57 @@ begin
         Exit;
     end;
     sqlCreateTable := 'CREATE TABLE "' + sTableName + '" (';
+    sqlInsert := 'INSERT INTO "' + sTableName + '" (';
     for i := 0 to dsDbf.FieldCount - 1 do
     begin
       sqlCreateTable += '"' + dsDbf.Fields[i].FieldName + '" ';
+      sqlInsert += 'dsDbf.Fields[i].FieldName,';
       case dsDbf.Fields[i].DataType of
+        ftInteger: sqlCreateTable +=
+            ' integer(' + IntToStr(dsDbf.Fields[i].DataSize) + '),';
         ftString: sqlCreateTable += ' text(' + IntToStr(dsDbf.Fields[i].DataSize) + '),';
-        ftInteger: sqlCreateTable += ' integer(' + IntToStr(dsDbf.Fields[i].DataSize) + '),';
-        //        ftBoolean: sqlCreateTable += ' Boolean,';
+        //        ftBoolean: sqlCreateTable += ' Bool,';
         //        ftMemo: sqlCreateTable += ' blob,';
-        ftFloat: sqlCreateTable += ' real,';
+        {AutoInc
+        String
+        Memo
+        Word
+        DateTime
+        Date
+        Time
+        LargeInt
+        Currency
+        }
+        // ftFloat: sqlCreateTable += ' real,';
       end;
     end;
     Delete(sqlCreateTable, length(sqlCreateTable), 1);
     sqlCreateTable += ');';
+    Delete(sqlInsert, length(sqlInsert), 1);
+    sqlInsert += ') VALUES (';
     memoLog.Append(sqlCreateTable);
-    dsSqlite3.ExecuteDirect(sqlCreateTable);
-
+    dsSqlite3.CreateTable(sqlCreateTable);
+    dsSqlite3.ExecuteDirect('Commit');
+    //    dsSqlite3.ExecuteDirect(sqlCreateTable);
+    dsDbf.First;
+    dsSqlite3.ExecuteDirect('Begin Transaction');
+    for j := 0 to dsDbf.RecordCount - 1 do
+    begin
+      for i := 0 to dsDbf.FieldCount - 1 do
+      begin
+        case dsDbf.Fields[i].DataType of
+          ftInteger: sqlTmpInsert += IntToStr(dsDbf.Fields[i].Value) + ',';
+          ftString: sqlTmpInsert += '"' + dsDbf.Fields[i].Value + '",';
+        end;
+      end;
+      Delete(sqlTmpInsert, Length(sqlTmpInsert), 1);
+      memoLog.Append(sqlInsert + sqlTmpInsert + ');');
+      //      dsSqlite3.ExecuteDirect(sqlInsert+sqlTmpInsert+');');
+      dsDbf.Next;
+    end;
+    dsSqlite3.ExecuteDirect('End Transaction');
+    dsSqlite3.ExecuteDirect('Commit');
+    dsSqlite3.ExecuteDirect('Vacuum');
   end;
 end;
 
