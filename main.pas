@@ -115,7 +115,7 @@ begin
     for i := 0 to dsDbf.FieldCount - 1 do
     begin
       sqlCreateTable += '"' + dsDbf.Fields[i].FieldName + '" ';
-      sqlInsert += 'dsDbf.Fields[i].FieldName,';
+      sqlInsert += dsDbf.Fields[i].FieldName + ',';
       case dsDbf.Fields[i].DataType of
         ftInteger: sqlCreateTable +=
             ' integer(' + IntToStr(dsDbf.Fields[i].DataSize) + '),';
@@ -140,23 +140,22 @@ begin
     Delete(sqlInsert, length(sqlInsert), 1);
     sqlInsert += ') VALUES (';
     memoLog.Append(sqlCreateTable);
-    dsSqlite3.CreateTable(sqlCreateTable);
-    dsSqlite3.ExecuteDirect('Commit');
-    //    dsSqlite3.ExecuteDirect(sqlCreateTable);
+    dsSqlite3.ExecuteDirect(sqlCreateTable);
     dsDbf.First;
     dsSqlite3.ExecuteDirect('Begin Transaction');
     for j := 0 to dsDbf.RecordCount - 1 do
     begin
+      sqlTmpInsert := '';
       for i := 0 to dsDbf.FieldCount - 1 do
       begin
         case dsDbf.Fields[i].DataType of
           ftInteger: sqlTmpInsert += IntToStr(dsDbf.Fields[i].Value) + ',';
-          ftString: sqlTmpInsert += '"' + dsDbf.Fields[i].Value + '",';
+          ftString: sqlTmpInsert += QuotedStr(dsDbf.Fields[i].Value) + ',';
         end;
       end;
       Delete(sqlTmpInsert, Length(sqlTmpInsert), 1);
       memoLog.Append(sqlInsert + sqlTmpInsert + ');');
-      //      dsSqlite3.ExecuteDirect(sqlInsert+sqlTmpInsert+');');
+      dsSqlite3.ExecuteDirect(sqlInsert + sqlTmpInsert + ');');
       dsDbf.Next;
     end;
     dsSqlite3.ExecuteDirect('End Transaction');

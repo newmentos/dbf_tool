@@ -1,7 +1,7 @@
 object frmMain: TfrmMain
-  Left = 419
+  Left = 444
   Height = 600
-  Top = 149
+  Top = 198
   Width = 800
   Caption = 'Главное окно'
   ClientHeight = 600
