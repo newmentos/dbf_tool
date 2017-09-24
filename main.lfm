@@ -2,14 +2,16 @@ object frmMain: TfrmMain
   Left = 444
   Height = 600
   Top = 198
-  Width = 800
+  Width = 694
+  ActiveControl = btnOpen
   Caption = 'Главное окно'
   ClientHeight = 600
-  ClientWidth = 800
+  ClientWidth = 694
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   Position = poScreenCenter
   LCLVersion = '1.6.4.0'
+  Visible = False
   object btnOpen: TButton
     Left = 8
     Height = 25
@@ -20,7 +22,7 @@ object frmMain: TfrmMain
     TabOrder = 0
   end
   object btnExit: TButton
-    Left = 720
+    Left = 608
     Height = 25
     Top = 8
     Width = 75
@@ -41,7 +43,7 @@ object frmMain: TfrmMain
     Left = 8
     Height = 176
     Top = 416
-    Width = 787
+    Width = 675
     Lines.Strings = (
       'memoLog'
     )
@@ -51,7 +53,7 @@ object frmMain: TfrmMain
     Left = 8
     Height = 368
     Top = 40
-    Width = 787
+    Width = 675
     Color = clWindow
     Columns = <>
     DataSource = ds1
