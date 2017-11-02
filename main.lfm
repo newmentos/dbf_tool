@@ -3,6 +3,7 @@ object frmMain: TfrmMain
   Height = 600
   Top = 198
   Width = 800
+  ActiveControl = btnOpen
   Caption = 'Главное окно'
   ClientHeight = 600
   ClientWidth = 800
@@ -10,6 +11,7 @@ object frmMain: TfrmMain
   OnDestroy = FormDestroy
   Position = poScreenCenter
   LCLVersion = '1.6.4.0'
+  Visible = False
   object btnOpen: TButton
     Left = 8
     Height = 25

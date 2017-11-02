@@ -119,7 +119,8 @@ begin
       case dsDbf.Fields[i].DataType of
         ftInteger: sqlCreateTable +=
             ' integer(' + IntToStr(dsDbf.Fields[i].DataSize) + '),';
-        ftString: sqlCreateTable += ' text(' + IntToStr(dsDbf.Fields[i].DataSize) + '),';
+        ftString: sqlCreateTable +=
+            ' varchar(' + IntToStr(dsDbf.Fields[i].DataSize * 2) + '),';
         //        ftBoolean: sqlCreateTable += ' Bool,';
         //        ftMemo: sqlCreateTable += ' blob,';
         {AutoInc
