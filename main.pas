@@ -148,10 +148,20 @@ begin
     begin
       sqlTmpInsert := '';
       for i := 0 to dsDbf.FieldCount - 1 do
+        // Определяем тип поля
       begin
-        case dsDbf.Fields[i].DataType of
-          ftInteger: sqlTmpInsert += IntToStr(dsDbf.Fields[i].Value) + ',';
-          ftString: sqlTmpInsert += QuotedStr(dsDbf.Fields[i].Value) + ',';
+        if dsDbf.Fields[i].IsNull then
+          sqlTmpInsert += 'null,'
+        else
+        begin
+          case dsDbf.Fields[i].DataType of
+            // число
+            ftInteger: sqlTmpInsert += IntToStr(dsDbf.Fields[i].Value) + ',';
+            // строка
+            ftString: sqlTmpInsert += QuotedStr(dsDbf.Fields[i].Value) + ',';
+            else
+              ShowMessage('тип не определен');
+          end;
         end;
       end;
       Delete(sqlTmpInsert, Length(sqlTmpInsert), 1);
