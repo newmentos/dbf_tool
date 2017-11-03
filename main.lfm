@@ -1,0 +1,87 @@
+object frmMain: TfrmMain
+  Left = 444
+  Height = 600
+  Top = 198
+  Width = 694
+  ActiveControl = btnOpen
+  Caption = 'Главное окно'
+  ClientHeight = 600
+  ClientWidth = 694
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  Position = poScreenCenter
+  LCLVersion = '1.6.4.0'
+  Visible = False
+  object btnOpen: TButton
+    Left = 8
+    Height = 25
+    Top = 8
+    Width = 75
+    Caption = 'Открыть'
+    OnClick = btnOpenClick
+    TabOrder = 0
+  end
+  object btnExit: TButton
+    Left = 608
+    Height = 25
+    Top = 8
+    Width = 75
+    Caption = 'Выход'
+    OnClick = btnExitClick
+    TabOrder = 1
+  end
+  object btnSave: TButton
+    Left = 88
+    Height = 25
+    Top = 8
+    Width = 75
+    Caption = 'Сохранить'
+    OnClick = btnSaveClick
+    TabOrder = 2
+  end
+  object memoLog: TMemo
+    Left = 8
+    Height = 176
+    Top = 416
+    Width = 675
+    Lines.Strings = (
+      'memoLog'
+    )
+    TabOrder = 3
+  end
+  object dbgrid1: TDBGrid
+    Left = 8
+    Height = 368
+    Top = 40
+    Width = 675
+    Color = clWindow
+    Columns = <>
+    DataSource = ds1
+    TabOrder = 4
+  end
+  object OpenDialog1: TOpenDialog
+    left = 39
+    top = 80
+  end
+  object dsDbf: TDbf
+    IndexDefs = <>
+    TableLevel = 4
+    OnTranslate = dsDbfTranslate
+    FilterOptions = []
+    left = 112
+    top = 80
+  end
+  object ds1: TDataSource
+    DataSet = dsDbf
+    left = 184
+    top = 80
+  end
+  object SaveDialog1: TSaveDialog
+    left = 39
+    top = 152
+  end
+  object dsSqlite3: TSqlite3Dataset
+    left = 112
+    top = 152
+  end
+end
