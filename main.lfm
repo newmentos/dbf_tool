@@ -7,8 +7,8 @@ object frmMain: TfrmMain
   Caption = 'Главное окно'
   ClientHeight = 600
   ClientWidth = 694
+  OnClose = FormClose
   OnCreate = FormCreate
-  OnDestroy = FormDestroy
   Position = poScreenCenter
   LCLVersion = '1.6.4.0'
   Visible = False
@@ -80,8 +80,23 @@ object frmMain: TfrmMain
     left = 39
     top = 152
   end
-  object dsSqlite3: TSqlite3Dataset
-    left = 112
+  object SQLite3Connection1: TSQLite3Connection
+    Connected = False
+    LoginPrompt = False
+    KeepConnection = False
+    Options = []
+    left = 368
+    top = 80
+  end
+  object SQLDBLibraryLoader1: TSQLDBLibraryLoader
+    Enabled = False
+    left = 528
+    top = 80
+  end
+  object SQLTransaction1: TSQLTransaction
+    Active = False
+    Options = []
+    left = 368
     top = 152
   end
 end
