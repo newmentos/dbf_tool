@@ -114,97 +114,112 @@ begin
   SaveDialog1.InitialDir := ExtractFileDir(OpenDialog1.FileName);
   if SaveDialog1.Execute then
   begin
-    sFile := SaveDialog1.FileName;
-    sTableName := LazFileUtils.ExtractFileNameOnly(filename);
-    memoLog.Append(sFile);
-    memoLog.Append(sTableName);
-    SQLite3Connection1.Connected := False;
-    SQLite3Connection1.DatabaseName := sFile;
-    try  // пробуем подключится к базе
-      SQLIte3Connection1.Open;
+    try
+      sFile := SaveDialog1.FileName;
+      sTableName := LazFileUtils.ExtractFileNameOnly(filename);
+      memoLog.Append(sFile);
+      memoLog.Append(sTableName);
+      SQLite3Connection1.DatabaseName := sFile;
+      SQLite3Connection1.Transaction := SQLTransaction1;
+      SQLTransaction1.DataBase := SQLite3Connection1;
+      // Включем транзакции
       SQLTransaction1.Active := True;
-      SQLIte3Connection1.Connected := True;
-    except   // если не удалось то выводим сообщение о ошибке
-      ShowMessage('Ошибка подключения к базе!');
-    end;
-    passdatabase := PasswordBox('Пароль базы данных',
-      'Для входа введите Ваш текущий пароль:');
-    SQLIte3Connection1.ExecuteDirect('PRAGMA key=' + QuotedStr(passdatabase) + ';');
-
-    if IsTableEnabled(sTableName) then
-    begin
-      if MessageDlg('Внимание!', 'Таблица уже существует! Заменить?',
-        mtConfirmation, [mbYes, mbNo], 0) = mrYes then
-      begin
-        SQLite3Connection1.ExecuteDirect('DROP TABLE "' + sTableName + '";');
-      end
-      else
-        Exit;
-    end;
-    sqlCreateTable := 'CREATE TABLE "' + sTableName + '" (';
-    sqlInsert := 'INSERT INTO "' + sTableName + '" (';
-    for i := 0 to dsDbf.FieldCount - 1 do
-    begin
-      sqlCreateTable += '"' + dsDbf.Fields[i].FieldName + '" ';
-      sqlInsert += dsDbf.Fields[i].FieldName + ',';
-      case dsDbf.Fields[i].DataType of
-        ftInteger: sqlCreateTable +=
-            ' integer(' + IntToStr(dsDbf.Fields[i].DataSize) + '),';
-        ftString: sqlCreateTable +=
-            ' varchar(' + IntToStr(dsDbf.Fields[i].DataSize * 2) + '),';
-        //        ftBoolean: sqlCreateTable += ' Bool,';
-        //        ftMemo: sqlCreateTable += ' blob,';
-        {AutoInc
-        String
-        Memo
-        Word
-        DateTime
-        Date
-        Time
-        LargeInt
-        Currency
-        }
-        // ftFloat: sqlCreateTable += ' real,';
+      try  // пробуем подключится к базе
+        SQLIte3Connection1.Open;
+        SQLIte3Connection1.Connected := True;
+      except   // если не удалось то выводим сообщение о ошибке
+        ShowMessage('Ошибка подключения к базе!');
       end;
-    end;
-    Delete(sqlCreateTable, length(sqlCreateTable), 1);
-    sqlCreateTable += ');';
-    Delete(sqlInsert, length(sqlInsert), 1);
-    sqlInsert += ') VALUES (';
-    memoLog.Append(sqlCreateTable);
-    SQLite3Connection1.ExecuteDirect(sqlCreateTable);
-    dsDbf.First;
-    SQLite3Connection1.ExecuteDirect('Begin Transaction');
-    for j := 0 to dsDbf.RecordCount - 1 do
-    begin
-      sqlTmpInsert := '';
-      for i := 0 to dsDbf.FieldCount - 1 do
-        // Определяем тип поля
+      passdatabase := PasswordBox('Пароль базы данных',
+        'Для входа введите Ваш текущий пароль:');
+      // Вводим пароль базы
+      SQLIte3Connection1.ExecuteDirect('PRAGMA key=' + QuotedStr(passdatabase) +
+        ';');
+      if IsTableEnabled(sTableName) then
       begin
-        if dsDbf.Fields[i].IsNull then
-          sqlTmpInsert += 'null,'
-        else
+        if MessageDlg('Внимание!', 'Таблица уже существует! Заменить?',
+          mtConfirmation, [mbYes, mbNo], 0) = mrYes then
         begin
-          case dsDbf.Fields[i].DataType of
-            // число
-            ftInteger: sqlTmpInsert += IntToStr(dsDbf.Fields[i].Value) + ',';
-            // строка
-            ftString: sqlTmpInsert += QuotedStr(dsDbf.Fields[i].Value) + ',';
-            else
-              ShowMessage('тип не определен');
-          end;
+          SQLite3Connection1.ExecuteDirect('DROP TABLE "' + sTableName +
+            '";');
+        end
+        else
+          Exit;
+      end;
+      sqlCreateTable := 'CREATE TABLE "' + sTableName + '" (';
+      sqlInsert := 'INSERT INTO "' + sTableName + '" (';
+      for i := 0 to dsDbf.FieldCount - 1 do
+      begin
+        sqlCreateTable += '"' + dsDbf.Fields[i].FieldName + '" ';
+        sqlInsert += dsDbf.Fields[i].FieldName + ',';
+        case dsDbf.Fields[i].DataType of
+          ftInteger: sqlCreateTable +=
+              ' integer(' + IntToStr(dsDbf.Fields[i].DataSize) + '),';
+          ftString: sqlCreateTable +=
+              ' varchar(' + IntToStr(dsDbf.Fields[i].DataSize * 2) + '),';
+          //        ftBoolean: sqlCreateTable += ' Bool,';
+          //        ftMemo: sqlCreateTable += ' blob,';
+          {AutoInc
+          String
+          Memo
+          Word
+          DateTime
+          Date
+          Time
+          LargeInt
+          Currency
+          }
+          // ftFloat: sqlCreateTable += ' real,';
         end;
       end;
-      Delete(sqlTmpInsert, Length(sqlTmpInsert), 1);
-      memoLog.Append(sqlInsert + sqlTmpInsert + ');');
-      SQLite3Connection1.ExecuteDirect(sqlInsert + sqlTmpInsert + ');');
-      dsDbf.Next;
+      Delete(sqlCreateTable, length(sqlCreateTable), 1);
+      sqlCreateTable += ');';
+      Delete(sqlInsert, length(sqlInsert), 1);
+      sqlInsert += ') VALUES (';
+      memoLog.Append(sqlCreateTable);
+      SQLite3Connection1.ExecuteDirect(sqlCreateTable);
+      dsDbf.First;
+      {
+      SQLite3Connection1.ExecuteDirect('Begin Transaction', SQLTransaction1);
+      }
+      for j := 0 to dsDbf.RecordCount - 1 do
+      begin
+        sqlTmpInsert := '';
+        for i := 0 to dsDbf.FieldCount - 1 do
+          // Определяем тип поля
+        begin
+          if dsDbf.Fields[i].IsNull then
+            sqlTmpInsert += 'null,'
+          else
+          begin
+            case dsDbf.Fields[i].DataType of
+              // число
+              ftInteger: sqlTmpInsert += IntToStr(dsDbf.Fields[i].Value) + ',';
+              // строка
+              ftString: sqlTmpInsert += QuotedStr(dsDbf.Fields[i].Value) + ',';
+              else
+                ShowMessage('тип не определен');
+            end;
+          end;
+        end;
+        Delete(sqlTmpInsert, Length(sqlTmpInsert), 1);
+        memoLog.Append(sqlInsert + sqlTmpInsert + ');');
+        SQLite3Connection1.ExecuteDirect(sqlInsert + sqlTmpInsert +
+          ');', SQLTransaction1);
+        dsDbf.Next;
+      end;
+      SQLite3Connection1.ExecuteDirect('End Transaction');
+      // SQLite3Connection1.ExecuteDirect('Commit');
+      SQLite3Connection1.ExecuteDirect('Vacuum');
+      SQLite3Connection1.ExecuteDirect('Begin Transaction');
+      SQLite3Connection1.Connected := False;
+      SQLite3Connection1.CloseTransactions;
+      SQLTransaction1.Active := False;
+    finally
+      SQLite3Connection1.CloseTransactions;
+      SQLite3Connection1.Connected := False;
+      SQLite3Connection1.Close(True);
     end;
-    SQLite3Connection1.ExecuteDirect('End Transaction');
-    SQLite3Connection1.ExecuteDirect('Commit');
-    SQLite3Connection1.ExecuteDirect('Vacuum');
-    SQLite3Connection1.Connected := False;
-    SQLite3Connection1.CloseTransactions;
   end;
 end;
 
@@ -223,14 +238,13 @@ end;
 procedure TfrmMain.FormClose(Sender: TObject; var CloseAction: TCloseAction);
 begin
   dsDbf.Free;
-  SQLite3Connection1.CloseTransactions;
-  SQLite3Connection1.Connected := False;
-  SQLite3Connection1.Close(True);
   FreeAndNil(SQLTransaction1);
   FreeAndNil(SQLite3Connection1);
   SQLDBLibraryLoader1.UnloadLibrary;
   SQLDBLibraryLoader1.Enabled := False;
   FreeAndNil(SQLDBLibraryLoader1);
+  FreeAndNil(OpenDialog1);
+  FreeAndNil(SaveDialog1);
 end;
 
 procedure TfrmMain.FormCreate(Sender: TObject);
@@ -264,8 +278,6 @@ begin
   SQLDBLibraryLoader1.Enabled := True;
   // указываем рабочую кодировку
   SQLite3Connection1.CharSet := 'UTF-8';
-  SQLite3Connection1.Transaction := SQLTransaction1;
-  SQLTransaction1.DataBase := SQLite3Connection1;
   memoLog.Clear;
   //  dsDbf.Create(nil);
 end;

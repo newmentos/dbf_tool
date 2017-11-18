@@ -1,8 +1,7 @@
 backup/
 dbf/
 lib/
-dbtool
-dbtool.exe
+dbtool-*
 dbtool.res
 dbtool.lps
 *.DBF
